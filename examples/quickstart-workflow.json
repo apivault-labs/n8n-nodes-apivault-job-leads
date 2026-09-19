@@ -1,0 +1,105 @@
+{
+  "id": "059cfbf3-cf1c-5f89-8a62-45e5b92c837b",
+  "name": "Job Leads → High-intent company queue",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d415fbc8-48ca-528b-8065-9f7b5eca3b47",
+      "name": "When clicking Execute workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Setup\n1. Select your Apify API credential.\n2. Replace the keyword and location.\n3. Adjust lead-quality filters.\n4. Review the resulting queue before outreach.",
+        "height": 300,
+        "width": 460
+      },
+      "id": "1411fa85-37cf-5211-8042-f55344ea1853",
+      "name": "How to use this workflow",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "keywords": "marketing manager",
+        "location": "United States",
+        "sources": [
+          "indeed",
+          "linkedin"
+        ],
+        "deduplicateCompanies": true,
+        "exportFormat": "default",
+        "filters": {
+          "minLeadScore": 30,
+          "onlyFreshThisWeek": true
+        },
+        "additionalOptions": {
+          "writeSummary": true,
+          "topN": 20
+        }
+      },
+      "id": "4e5b1246-c764-5aba-94c0-5946760f4060",
+      "name": "Find companies hiring now",
+      "type": "n8n-nodes-apivault-job-leads.jobLeads",
+      "typeVersion": 1,
+      "position": [
+        260,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const j = $json; return { json: { ...j, crmLead: { company: j.company ?? j.companyName ?? '', role: j.title ?? j.jobTitle ?? '', score: Number(j.leadScore ?? 0), reason: j.leadTier ?? '', sourceUrl: j.jobUrl ?? j.url ?? '', reviewStatus: 'ready_for_review' } } };"
+      },
+      "id": "5c6ebf3c-b423-55ee-ac2b-30aa55b76de7",
+      "name": "Prepare CRM hiring lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking Execute workflow": {
+      "main": [
+        [
+          {
+            "node": "Find companies hiring now",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find companies hiring now": {
+      "main": [
+        [
+          {
+            "node": "Prepare CRM hiring lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "versionId": "25dc7c8c-948f-587e-aac8-ee9606fba8d3",
+  "tags": []
+}
