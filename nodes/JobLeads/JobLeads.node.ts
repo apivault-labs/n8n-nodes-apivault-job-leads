@@ -58,7 +58,7 @@ export class JobLeads implements INodeType {
 				options: [
 					{ name: 'Indeed', value: 'indeed' },
 					{ name: 'LinkedIn', value: 'linkedin' },
-					{ name: 'Glassdoor (often Cloudflare-blocked)', value: 'glassdoor' },
+					{ name: 'Glassdoor (best effort)', value: 'glassdoor' },
 				],
 				default: ['indeed', 'linkedin'],
 				description: 'Which job boards to search',
@@ -151,22 +151,6 @@ export class JobLeads implements INodeType {
 						default: 20,
 						description: 'Size of the top-companies / top-jobs records',
 					},
-					{
-						displayName: 'Max Concurrency',
-						name: 'maxConcurrency',
-						type: 'number',
-						typeOptions: { minValue: 1, maxValue: 5 },
-						default: 3,
-						description: 'Parallel source fetches',
-					},
-					{
-						displayName: 'Timeout per Source (Seconds)',
-						name: 'timeout',
-						type: 'number',
-						typeOptions: { minValue: 30, maxValue: 300 },
-						default: 120,
-						description: 'Max wait per job board',
-					},
 				],
 			},
 		],
@@ -199,8 +183,6 @@ export class JobLeads implements INodeType {
 				const extra = this.getNodeParameter('additionalOptions', i, {}) as {
 					writeSummary?: boolean;
 					topN?: number;
-					maxConcurrency?: number;
-					timeout?: number;
 				};
 
 				if (!keywords || !keywords.trim()) {
@@ -226,8 +208,6 @@ export class JobLeads implements INodeType {
 					onlyPayTransparencyCompliant: filters.onlyPayTransparencyCompliant ?? false,
 					writeSummary: extra.writeSummary ?? true,
 					topN: extra.topN ?? 20,
-					maxConcurrency: extra.maxConcurrency ?? 3,
-					timeout: extra.timeout ?? 120,
 				};
 
 				const options: IRequestOptions = {
